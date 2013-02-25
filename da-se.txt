@@ -1,0 +1,14 @@
+{"title": "isoHunt > All > Lost Girl S03E06",
+  "link": "http://isohunt.com",
+  "description": "BitTorrent Search > All > Lost Girl S03E06",
+  "language": "en-us",
+  "category": "All",
+  "max_results": 1000,
+  "ttl": 15,
+  "image": {"title": "isoHunt > All > Lost Girl S03E06",
+            "url": "http://isohunt.com/img/buttons/isohunt-02.gif",
+            "link": "http://isohunt.com/",
+            "width": 157,
+            "height": 45},
+"lastBuildDate": "Wed, 20 Feb 2013 23:19:02 GMT","pubDate": "Wed, 20 Feb 2013 23:19:02 GMT","total_results":20, "censored":0, "items": {"list":  [{"title":"<b>Lost.Girl.S03E06</b>.HDTV.x264-2HD.mp4","link":"http:\/\/isohunt.com\/torrent_details\/454580621\/Lost+Girl+S03E06?tab=summary","guid":"454580621","enclosure_url":"http://ca.isohunt.com/download/454580621/Lost+Girl+S03E06.torrent","length":265565503,"tracker":"tracker.publicbt.com","tracker_url":"http:\/\/tracker.publicbt.com:80\/announce","kws":"","exempts":"","category":"TV","original_site":"www.bt-chat.com","original_link":"http:\/\/www.bt-chat.com\/download.php?id=168808","size":"253.26 MB","files":1,"Seeds":2063,"leechers":173,"downloads":10,"votes":0,"comments":0,"hash":"ac5419cadf57bcda4e98c566473f30dba07f3d8b","pubDate":"Mon, 18 Feb 2013 04:10:16 GMT"}
+]}}
