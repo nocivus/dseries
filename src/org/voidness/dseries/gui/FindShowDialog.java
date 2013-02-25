@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import org.voidness.dseries.Show;
+import org.voidness.dseries.data.Show;
 import org.voidness.dseries.tvrage.TVRageService;
 
 import com.inforviegas.main.gui.custom.PowerTable;

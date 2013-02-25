@@ -16,7 +16,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
-import org.voidness.dseries.Show;
+import org.voidness.dseries.data.Show;
 
 import com.inforviegas.main.utils.log.LogUtils;
 
