@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 
+import org.voidness.dseries.data.Database;
+import org.voidness.dseries.data.Settings;
 import org.voidness.dseries.gui.ShowsList;
 
 import com.inforviegas.main.utils.log.LogUtils;

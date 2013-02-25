@@ -1,5 +1,6 @@
 package org.voidness.dseries;
 
+import org.voidness.dseries.data.Settings;
 import org.voidness.dseries.gui.ShowsList;
 
 public class CheckShowsThread extends Thread {

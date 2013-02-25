@@ -5,7 +5,6 @@
   <property file="build.properties" />
   <path id="classpath">
     <fileset dir="${lib.dir}" includes="*.jar"/>
-  	<fileset dir="${lib.dir}/utils" includes="*.jar"/>
   </path>
 
     <!-- Initialization -->
@@ -41,12 +40,32 @@
   <target name="jar" depends="compile">
     <delete dir="${jar.dir}"/>
     <mkdir dir="${jar.dir}"/>
-    <jar destfile="${jar.dir}/${app.name}-${app.version}.jar" basedir="${classes.dir}">
-      <manifest>
-        <attribute name="Class-Path" value="${lib.dir}"/>
-        <attribute name="Main-Class" value="${main.class}"/>
-      </manifest>
-    </jar>
+  	
+  <!-- convert build.classpath to mf.classpath (the string needed for the manifest task) -->
+  <pathconvert property="mf.classpath" pathsep=" ">
+  	  <map from="" to="lib/"/>
+      <path refid="classpath" />
+      <flattenmapper />
+  </pathconvert>
+  	
+  <!-- now build the manifest file, using mf.classpath -->
+  <tstamp/><!-- needed for TODAY -->
+  <manifest file="MANIFEST.MF">
+    <attribute name="Built-By" value="${built.by}"/>
+    <attribute name="Created-By" value="${created.by}"/>
+    <attribute name="Main-Class" value="${main.class}"/>
+    <attribute name="Implementation-Version" value="${app.version}"/>   
+    <attribute name="Built-Date" value="${TODAY}"/>
+    <attribute name="Class-Path" value="${mf.classpath}" />
+  </manifest>
+  	
+  	<mkdir dir="${jar.dir}/lib"/>
+	<copy todir="${jar.dir}/lib">
+		<fileset dir="lib" includes="**/*.jar" />
+		<flattenmapper />
+	</copy>
+  	
+    <jar destfile="${jar.dir}/${app.name}-${app.version}.jar" basedir="${classes.dir}" manifest="MANIFEST.MF"/>
   </target>
 
     <!-- Run application -->
@@ -58,14 +77,24 @@
       </classpath>
     </java>
   </target>
+	
+	<target name="release-other" depends="jar">
+		<delete dir="${dist.dir}/other"/>
+		<mkdir dir="${dist.dir}/other"/>
+		<zip destfile="${dist.dir}/other/${app.name}-${app.version}.zip" basedir="${jar.dir}" />
+	</target>
+	
+	<target name="release" depends="release-osx">
+	</target>
 
-	<target name="bundle" depends="jar">
+	<target name="release-osx" depends="release-other">
+		<mkdir dir="${dist.dir}/osx"/>
 		<taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
 		<!--
 		classpathref="runclasspathref" 
 		-->
 		<bundleapp 
-			outputdirectory="dist"
+			outputdirectory="${dist.dir}/osx"
 			name="DSeries" 
 			displayname="Download Series"
 			identifier="org.voidness.dseries" 
@@ -80,7 +109,6 @@
 
 			<classpath file="${jar.dir}/${app.name}-${app.version}.jar" />
 			<classpath file="${lib.dir}/*.jar" />
-			<classpath file="${lib.dir}/utils/*.jar" />
 
 			<!-- Specify which architectures you want to support -->
 			<arch name="x86_64" />

@@ -14,19 +14,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
 import org.voidness.dseries.CheckShowsThread;
-import org.voidness.dseries.Database;
 import org.voidness.dseries.DownloadService;
-import org.voidness.dseries.Settings;
-import org.voidness.dseries.Show;
+import org.voidness.dseries.data.Database;
+import org.voidness.dseries.data.Settings;
+import org.voidness.dseries.data.Show;
 import org.voidness.dseries.isohunt.IsoHuntService;
 import org.voidness.dseries.isohunt.Torrent;
 import org.voidness.dseries.tvrage.Episode;
@@ -56,6 +58,11 @@ public class ShowsList extends JFrame {
     private JPanel           centerPanel;
     private JScrollPane      scrollPane_1;
     private JTextPane        logArea;
+    private JButton          aboutButton;
+    private JButton          btnDelete;
+    private JSeparator       separator;
+    private JSeparator       separator_1;
+    private JSeparator       separator_2;
 
     public ShowsList(Settings s, Database d) {
 
@@ -187,8 +194,13 @@ public class ShowsList extends JFrame {
             panel = new JPanel();
             panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
             panel.add(getAddShowButton());
+            panel.add(getBtnDelete());
+            panel.add(getSeparator());
             panel.add(getCheckUpdatesButton());
+            panel.add(getSeparator_1());
             panel.add(getSettingsButton());
+            panel.add(getSeparator_2());
+            panel.add(getAboutButton());
         }
         return panel;
     }
@@ -196,7 +208,7 @@ public class ShowsList extends JFrame {
     private JButton getAddShowButton() {
 
         if (addShowButton == null) {
-            addShowButton = new JButton("Add show"); //$NON-NLS-1$
+            addShowButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("add.png"))); //$NON-NLS-1$
             addShowButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -245,7 +257,7 @@ public class ShowsList extends JFrame {
     private JButton getCheckUpdatesButton() {
 
         if (checkUpdatesButton == null) {
-            checkUpdatesButton = new JButton("Check updates"); //$NON-NLS-1$
+            checkUpdatesButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("refresh.png"))); //$NON-NLS-1$
             checkUpdatesButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -384,7 +396,7 @@ public class ShowsList extends JFrame {
     private JButton getSettingsButton() {
 
         if (settingsButton == null) {
-            settingsButton = new JButton("Settings"); //$NON-NLS-1$
+            settingsButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("cog.png"))); //$NON-NLS-1$
             settingsButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -474,5 +486,66 @@ public class ShowsList extends JFrame {
 
         LogUtils.debug(str);
         getLogArea().setText(getLogArea().getText() + "\r\n" + str); //$NON-NLS-1$
+    }
+
+    private JButton getAboutButton() {
+
+        if (aboutButton == null) {
+            aboutButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("information.png"))); //$NON-NLS-1$
+            aboutButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    Notifications.showInfo("DSeries was developed by Pedro Assuncao (http://pedroassuncao.com).\r\nIf you like it, please donate :)"); //$NON-NLS-1$
+                }
+            });
+        }
+        return aboutButton;
+    }
+
+    private JButton getBtnDelete() {
+
+        if (btnDelete == null) {
+            btnDelete = new JButton(new ImageIcon(getClass().getClassLoader().getResource("delete.png"))); //$NON-NLS-1$
+            btnDelete.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    Show selected = getPowerTable().getSelectedObject();
+                    if (selected != null && UIUtils.confirm("Are you sure you want to remove that show?")) { //$NON-NLS-1$
+
+                        database.removeShow(selected);
+                        updateTable();
+                    }
+                }
+            });
+        }
+        return btnDelete;
+    }
+
+    private JSeparator getSeparator() {
+
+        if (separator == null) {
+            separator = new JSeparator();
+        }
+        return separator;
+    }
+
+    private JSeparator getSeparator_1() {
+
+        if (separator_1 == null) {
+            separator_1 = new JSeparator();
+        }
+        return separator_1;
+    }
+
+    private JSeparator getSeparator_2() {
+
+        if (separator_2 == null) {
+            separator_2 = new JSeparator();
+        }
+        return separator_2;
     }
 }

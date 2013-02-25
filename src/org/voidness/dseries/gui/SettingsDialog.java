@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import org.voidness.dseries.Settings;
+import org.voidness.dseries.data.Settings;
 
 import com.inforviegas.main.gui.custom.labeledcomponents.LabeledLongField;
 import com.inforviegas.main.gui.custom.labeledcomponents.LabeledSelectFolder;

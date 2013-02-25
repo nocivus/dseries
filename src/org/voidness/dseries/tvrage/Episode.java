@@ -3,7 +3,7 @@ package org.voidness.dseries.tvrage;
 import java.net.URLEncoder;
 import java.util.Date;
 
-import org.voidness.dseries.Show;
+import org.voidness.dseries.data.Show;
 
 import com.inforviegas.main.utils.formatting.FormattingUtils;
 

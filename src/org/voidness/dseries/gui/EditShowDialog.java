@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import org.voidness.dseries.Show;
+import org.voidness.dseries.data.Show;
 
 import com.inforviegas.main.gui.custom.labeledcomponents.LabeledIntegerField;
 import com.inforviegas.main.gui.dialogs.ResponseDialog;
