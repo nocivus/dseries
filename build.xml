@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="DSeries" default="run" basedir=".">
+  <description>Download Series</description>
+
+  <property file="build.properties" />
+  <path id="classpath">
+    <fileset dir="${lib.dir}" includes="*.jar"/>
+  	<fileset dir="${lib.dir}/utils" includes="*.jar"/>
+  </path>
+
+    <!-- Initialization -->
+  <target name="init" description="Prepare needed directories.">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+    <mkdir dir="${jar.dir}" />
+    <mkdir dir="${dist.dir}" />
+  </target>
+
+    <!-- Cleanup -->
+  <target name="clean" description="Remove all files created by the build/test process.">
+    <delete dir="${classes.dir}" />
+    <delete dir="${dist.dir}" />
+  </target>
+
+    <!-- Compile application -->
+  <target name="compile" depends="init">
+    <mkdir dir="${classes.dir}"/>
+  	<javac srcdir="${src.dir}" 
+       destdir="${classes.dir}" 
+       debug="yes"
+       includeantruntime="false">
+      <classpath refid="classpath" />
+    </javac>
+  	<copy todir="${classes.dir}">
+  	  	    <fileset dir="src"
+  	  	             includes="**/*.png" />
+  	  	</copy>
+  </target>
+
+    <!-- Java Archive -->
+  <target name="jar" depends="compile">
+    <delete dir="${jar.dir}"/>
+    <mkdir dir="${jar.dir}"/>
+    <jar destfile="${jar.dir}/${app.name}-${app.version}.jar" basedir="${classes.dir}">
+      <manifest>
+        <attribute name="Class-Path" value="${lib.dir}"/>
+        <attribute name="Main-Class" value="${main.class}"/>
+      </manifest>
+    </jar>
+  </target>
+
+    <!-- Run application -->
+  <target name="run" depends="jar">
+    <java fork="true" classname="${main.class}">
+      <classpath>
+         <path refid="classpath"/>
+         <path location="${jar.dir}/${app.name}-${app.version}.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+	<target name="bundle" depends="jar">
+		<taskdef name="bundleapp" classpath="appbundler-1.0ea.jar" classname="com.oracle.appbundler.AppBundlerTask" />
+		<!--
+		classpathref="runclasspathref" 
+		-->
+		<bundleapp 
+			outputdirectory="dist"
+			name="DSeries" 
+			displayname="Download Series"
+			identifier="org.voidness.dseries" 
+			shortversion="1.0"
+			version="build 1"
+			mainclassname="org.voidness.dseries.DSeries"
+			copyright="2013 Pedro Assuncao"
+			applicationCategory="public.app-category.entertainment"
+			icon="images/dseries.icns">
+
+			<!--runtime dir="/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home" /-->
+
+			<classpath file="${jar.dir}/${app.name}-${app.version}.jar" />
+			<classpath file="${lib.dir}/*.jar" />
+			<classpath file="${lib.dir}/utils/*.jar" />
+
+			<!-- Specify which architectures you want to support -->
+			<arch name="x86_64" />
+			<arch name="i386" />
+
+			<!-- Register the application as an editor for PNG and JPG files -->
+			<!--bundledocument extensions="png,jpg"
+	        icon="${bundle.icon}"
+	        name="Images"
+	        role="editor">
+	      </bundledocument-->
+
+			<!-- Register the application as a viewer for PDF files -->
+			<!--bundledocument extensions="pdf"
+	        icon="${bundle.icon}"
+	        name="PDF files"
+	        role="viewer">
+	      </bundledocument-->
+
+			<!-- Register the application with your custom format, 
+	      bundled as a package -->
+			<!--bundledocument extensions="custom"
+	        icon="${bundle.icon}"
+	        name="Custom data"
+	        role="editor"
+	        isPackage="true">
+	      </bundledocument-->
+
+			<!-- Workaround since the icon parameter for bundleapp doesn't work -->
+			<option value="-Xdock:icon=Contents/Resources/${bundle.icon}" />
+
+			<!-- OSX specific options, optional -->
+			<option value="-Dapple.laf.useScreenMenuBar=true" />
+			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
+			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
+			<option value="-Dcom.apple.mrj.application.apple.menu.about.name=${bundle.name}" />
+			<option value="-Dcom.apple.smallTabs=true" />
+
+			<option value="-Xmx1024M" />
+		</bundleapp>
+	</target>
+</project>
