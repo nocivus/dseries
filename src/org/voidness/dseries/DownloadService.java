@@ -10,19 +10,25 @@ import java.net.URISyntaxException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
 public class DownloadService {
+
+    public static final int TIMEOUT_MILLIS = 3000;
 
     protected static InputStream getRemoteInputStream(String url) throws ClientProtocolException, IOException, URISyntaxException {
 
         HttpGet request = new HttpGet(url);
 
         HttpContext localContext = new BasicHttpContext();
-        HttpResponse response = new DefaultHttpClient().execute(request, localContext);
+        HttpClient client = getClient();
+        HttpResponse response = client.execute(request, localContext);
 
         return response.getEntity().getContent();
     }
@@ -58,5 +64,14 @@ public class DownloadService {
         output.flush();
         output.close();
         input.close();
+    }
+
+    public static HttpClient getClient() {
+
+        HttpClient client = new DefaultHttpClient();
+        HttpParams httpParams = client.getParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT_MILLIS);
+        HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT_MILLIS);
+        return client;
     }
 }

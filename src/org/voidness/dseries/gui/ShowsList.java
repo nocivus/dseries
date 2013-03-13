@@ -25,22 +25,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
 import org.voidness.dseries.CheckShowsThread;
-import org.voidness.dseries.DownloadService;
 import org.voidness.dseries.data.Database;
 import org.voidness.dseries.data.Settings;
 import org.voidness.dseries.data.Show;
-import org.voidness.dseries.isohunt.IsoHuntService;
-import org.voidness.dseries.isohunt.Torrent;
-import org.voidness.dseries.tvrage.Episode;
-import org.voidness.dseries.tvrage.TVRageService;
 
 import com.inforviegas.main.gui.custom.PowerTable;
 import com.inforviegas.main.gui.custom.error.Notifications;
 import com.inforviegas.main.gui.listeners.DialogResponseListener;
 import com.inforviegas.main.gui.models.BaseTableModel;
-import com.inforviegas.main.utils.datetime.DateTimeUtils;
 import com.inforviegas.main.utils.formatting.StringUtils;
-import com.inforviegas.main.utils.log.LogUtils;
 import com.inforviegas.main.utils.ui.UIUtils;
 
 public class ShowsList extends JFrame {
@@ -74,14 +67,29 @@ public class ShowsList extends JFrame {
         updateTable();
 
         // Launch a thread to check for new episodes every X time
-        thread = launchCheckThread();
+        launchCheckThread();
     }
 
-    private CheckShowsThread launchCheckThread() {
+    private void launchCheckThread() {
 
-        CheckShowsThread thread = new CheckShowsThread(this, settings);
+        // Stop it, if running
+        if (thread != null) {
+
+            // Ask the thread to die
+            thread.pleaseStop();
+            // Interrupt the sleep inside
+            thread.interrupt();
+            // Wait for it to die
+            try {
+                thread.join();
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
+        }
+
+        // And relaunch with a different time
+        thread = new CheckShowsThread(getCheckUpdatesButton(), getLogArea(), database, settings);
         thread.start();
-        return thread;
     }
 
     private void updateTable() {
@@ -178,6 +186,11 @@ public class ShowsList extends JFrame {
 
                                     fsd.dispose();
                                 }
+
+                                @Override
+                                public void onReset() {
+
+                                }
                             });
                             fsd.setVisible(true);
                         }
@@ -237,6 +250,11 @@ public class ShowsList extends JFrame {
 
                             fsd.dispose();
                         }
+
+                        @Override
+                        public void onReset() {
+
+                        }
                     });
                     fsd.setVisible(true);
                 }
@@ -271,126 +289,18 @@ public class ShowsList extends JFrame {
 
     public void checkShows() {
 
-        getCheckUpdatesButton().setEnabled(false);
+        if (StringUtils.isEmpty(settings.getTorrentDownloadFolder())) {
 
-        new Thread() {
-
-            public void run() {
-
-                if (StringUtils.isEmpty(settings.getTorrentDownloadFolder())) {
-
-                    Notifications.showError("Torrent download folder not set. Try again after setting it."); //$NON-NLS-1$
-                    showSettings();
-                    getCheckUpdatesButton().setEnabled(true);
-                    return;
-                }
-
-                for (Show s : getPowerTable().getTableModel().getData()) {
-
-                    if (DateTimeUtils.isAfter(s.nextCheckDate, new Date())) {
-
-                        log("Not checking " + s + ". Episode " + s.getNextSeasonEpisode() + " not out yet."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-                        continue;
-                    }
-
-                    log("Loading episodes for show " + s.title); //$NON-NLS-1$
-
-                    // Check for episode availability
-                    List<Episode> episodes = TVRageService.getEpisodes(s);
-                    Episode nextEpisodeToDL = getNextEpisodeToDownload(s, episodes);
-
-                    log("Next episode is " + nextEpisodeToDL.title); //$NON-NLS-1$
-
-                    // Check if the airdate has passed
-                    if (nextEpisodeToDL != null && DateTimeUtils.isBefore(nextEpisodeToDL.date, new Date())) {
-
-                        log("Will search for torrent: " + nextEpisodeToDL.getTorrentSearchQuery()); //$NON-NLS-1$
-
-                        // Look for the torrents
-                        log("Looking for torrent for episode " + nextEpisodeToDL.toString()); //$NON-NLS-1$
-                        Torrent t = IsoHuntService.findTorrent(nextEpisodeToDL.getTorrentSearchQuery());
-
-                        if (t != null) {
-
-                            log("Found torrent for episode: " + t); //$NON-NLS-1$
-
-                            // Download torrent to target folder
-                            try {
-
-                                log("Downloading..."); //$NON-NLS-1$
-                                DownloadService.downloadFile(t.enclosure_url, settings.getTorrentDownloadFolder());
-
-                                // If all goes well, update the episode number
-                                updateShow(s, episodes, nextEpisodeToDL);
-
-                            } catch (Exception exc) {
-
-                                exc.printStackTrace();
-                            }
-
-                        } else {
-
-                            log("No torrents found."); //$NON-NLS-1$
-                        }
-
-                    } else {
-
-                        log("Episode isn't out yet."); //$NON-NLS-1$
-                        s.nextCheckDate = nextEpisodeToDL.date;
-                        s.nextEpisodeDate = nextEpisodeToDL.date;
-                        database.saveShow(s);
-                    }
-                }
-
-                log("Idle."); //$NON-NLS-1$
-                getCheckUpdatesButton().setEnabled(true);
-                updateTable();
-            }
-        }.start();
-    }
-
-    protected void updateShow(Show show, List<Episode> episodes, Episode lastDownloaded) {
-
-        int currentNumber = lastDownloaded.absoluteNumber;
-        log("Current episode absolute number is: " + currentNumber); //$NON-NLS-1$
-
-        // Find the next one
-        boolean found = false;
-        for (Episode ep : episodes) {
-
-            if (ep.absoluteNumber == currentNumber + 1) {
-
-                log("Found next episode: " + ep); //$NON-NLS-1$
-                show.currentSeason = ep.season;
-                show.currentEpisode = ep.number;
-                show.nextCheckDate = ep.date;
-                show.nextEpisodeDate = ep.date;
-                found = true;
-                break;
-            }
+            Notifications.showError("Torrent download folder not set. Try again after setting it."); //$NON-NLS-1$
+            showSettings();
+            getCheckUpdatesButton().setEnabled(true);
+            return;
         }
 
-        // If it could not find it, just increase the number (assume next one)
-        if (!found) {
+        // Go!
+        launchCheckThread();
 
-            log("Did not find next episode, assuming + 1..."); //$NON-NLS-1$
-            show.currentEpisode++;
-        }
-
-        // Save it
-        database.saveShow(show);
-    }
-
-    protected Episode getNextEpisodeToDownload(Show show, List<Episode> episodes) {
-
-        for (Episode e : episodes) {
-
-            if (e.season == show.currentSeason && e.number == show.currentEpisode) {
-
-                return e;
-            }
-        }
-        return null;
+        updateTable();
     }
 
     private JButton getSettingsButton() {
@@ -419,18 +329,7 @@ public class ShowsList extends JFrame {
 
                 if (settings.getCheckShowsInterval() != oldCheckInterval) {
 
-                    // Ask the thread to die
-                    thread.pleaseStop();
-                    // Interrupt the sleep inside
-                    thread.interrupt();
-                    // Wait for it to die
-                    try {
-                        thread.join();
-                    } catch (Exception exc) {
-                        exc.printStackTrace();
-                    }
-                    // And relaunch with a different time
-                    thread = launchCheckThread();
+                    launchCheckThread();
                 }
                 fsd.dispose();
             }
@@ -439,6 +338,11 @@ public class ShowsList extends JFrame {
             public void onCancel() {
 
                 fsd.dispose();
+            }
+
+            @Override
+            public void onReset() {
+
             }
         });
         fsd.setVisible(true);
@@ -480,12 +384,6 @@ public class ShowsList extends JFrame {
             caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         }
         return logArea;
-    }
-
-    private void log(String str) {
-
-        LogUtils.debug(str);
-        getLogArea().setText(getLogArea().getText() + "\r\n" + str); //$NON-NLS-1$
     }
 
     private JButton getAboutButton() {

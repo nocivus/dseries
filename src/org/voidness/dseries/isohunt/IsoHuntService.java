@@ -10,7 +10,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.voidness.dseries.DownloadService;
 
 import com.google.gson.Gson;
 import com.inforviegas.main.utils.formatting.StringUtils;
@@ -45,7 +45,7 @@ public class IsoHuntService {
 
         try {
 
-            HttpClient client = new DefaultHttpClient();
+            HttpClient client = DownloadService.getClient();
             String httpQuery = "http://ca.isohunt.com/js/json.php?ihq=" + query + "&rows=20&sort=seeds"; //$NON-NLS-1$ //$NON-NLS-2$
             LogUtils.debug("Querying isohunt with: " + httpQuery); //$NON-NLS-1$
             HttpGet httpget = new HttpGet(httpQuery);
