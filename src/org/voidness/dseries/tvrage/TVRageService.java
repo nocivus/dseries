@@ -12,10 +12,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.voidness.dseries.DownloadService;
 import org.voidness.dseries.data.Show;
 
 import com.inforviegas.main.utils.log.LogUtils;
@@ -56,7 +56,7 @@ public class TVRageService {
 
         try {
 
-            HttpClient client = new DefaultHttpClient();
+            HttpClient client = DownloadService.getClient();
             HttpGet httpget = new HttpGet("http://services.tvrage.com/feeds/search.php?show=" //$NON-NLS-1$
                     + URLEncoder.encode(query, "utf-8")); //$NON-NLS-1$
             HttpResponse response = client.execute(httpget);
@@ -102,7 +102,7 @@ public class TVRageService {
 
         try {
 
-            HttpClient client = new DefaultHttpClient();
+            HttpClient client = DownloadService.getClient();
             HttpGet httpget = new HttpGet("http://services.tvrage.com/feeds/episode_list.php?sid=" + show.tvrageId); //$NON-NLS-1$
             HttpResponse response = client.execute(httpget);
             HttpEntity entity = response.getEntity();
