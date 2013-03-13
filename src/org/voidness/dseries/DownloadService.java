@@ -20,7 +20,7 @@ import org.apache.http.protocol.HttpContext;
 
 public class DownloadService {
 
-    public static final int TIMEOUT_MILLIS = 3000;
+    public static final int TIMEOUT_MILLIS = 10000;
 
     protected static InputStream getRemoteInputStream(String url) throws ClientProtocolException, IOException, URISyntaxException {
 
@@ -68,10 +68,12 @@ public class DownloadService {
 
     public static HttpClient getClient() {
 
+        //return HttpClients.custom().setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT_MILLIS).build())
+        //        .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT_MILLIS).build()).build();
         HttpClient client = new DefaultHttpClient();
-        HttpParams httpParams = client.getParams();
-        HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT_MILLIS);
-        HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT_MILLIS);
+        HttpParams params = client.getParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_MILLIS);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT_MILLIS);
         return client;
     }
 }
